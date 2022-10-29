@@ -1,26 +1,50 @@
 let throttle = require('lodash.throttle');
 
-const getEl = el => document.querySelector(el);
-
-const form = getEl('.feedback-form');
+const form = document.querySelector('.feedback-form');
+let formData = {};
 
 form.addEventListener('input', throttle(saveMassage, 500));
-
-let formData = { email: '', massage: '' };
+form.addEventListener('submit', sendingForm);
 
 function saveMassage(e) {
-  (formData.email = e.currentTarget.elements.email.value),
-    (formData.massage = e.currentTarget.elements.massage.value),
+  if (localStorage.getItem('feedback - form - state')) {
+    formData = JSON.parse(localStorage.getItem('feedback - form - state'));
+  }
+  (formData[e.target.name] = e.target.value),
     localStorage.setItem('feedback - form - state', JSON.stringify(formData));
-  console.log(formData);
 }
 
+// if (localStorage.getItem('feedback - form - state')) {
+//   if (JSON.parse(localStorage.getItem('feedback - form - state')).email) {
+//     form.email.value = JSON.parse(
+//       localStorage.getItem('feedback - form - state')
+//     ).email;
+//   }
+//   if (JSON.parse(localStorage.getItem('feedback - form - state')).message) {
+//     form.message.value = JSON.parse(
+//       localStorage.getItem('feedback - form - state')
+//     ).message;
+//   }
+// }
+
 if (localStorage.getItem('feedback - form - state')) {
-  form.email.value = JSON.parse(
+  const { email, message } = JSON.parse(
     localStorage.getItem('feedback - form - state')
-  ).email;
-  console.log(
-    JSON.parse(localStorage.getItem('feedback - form - state')).email
   );
-  console.log(form.email);
+
+  if (email) {
+    form.email.value = email;
+  }
+  if (message) {
+    form.message.value = message;
+  }
+}
+
+function sendingForm(e) {
+  e.preventDefault();
+
+  console.log(JSON.parse(localStorage.getItem('feedback - form - state')));
+  localStorage.clear();
+  form.reset();
+  formData = {};
 }
